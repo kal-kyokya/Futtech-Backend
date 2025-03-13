@@ -1,0 +1,27 @@
+{
+  "name": "futtech-backend",
+  "version": "1.0.0",
+  "description": "Node JS Code enabling API communication.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/kal-kyokya/Futtech-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kal-kyokya/Futtech-Backend/issues"
+  },
+  "homepage": "https://github.com/kal-kyokya/Futtech-Backend#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "nodemon": "^3.1.9"
+  }
+}
