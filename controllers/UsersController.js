@@ -90,7 +90,7 @@ export default class UsersController {
 	    const users = query
 		  ? await User.find().sort({ _id: -1 }).limit(10)
 		  : await User.find();
-	    return res.status(201).senf(users);
+	    return res.status(201).send(users);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}
@@ -111,11 +111,11 @@ export default class UsersController {
     // Proceed with report compilation
     if (isAdmin) {
 	try {
-	    const stats = await User.aggregate(
+	    const stats = await User.aggregate([
 		{ $project: { month: { $month: '$createAt'} } },
 		{ $group: { _id: '$month', total: { $sum: 1 } } }
-	    );
-	    return res.status(201).senf(stats);
+	    ]);
+	    return res.status(201).send(stats);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}
