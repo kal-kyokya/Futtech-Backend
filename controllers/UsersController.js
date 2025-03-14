@@ -100,6 +100,31 @@ export default class UsersController {
   }
 
   /**
+   * Compiles a report on users in the database
+   * @param { Object } req - The request object
+   * @param { Object } res - The response object
+   */
+  static async getStats(req, res) {
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
+
+    // Proceed with report compilation
+    if (isAdmin) {
+	try {
+	    const stats = await User.aggregate(
+		{ $project: { month: { $month: '$createAt'} } },
+		{ $group: { _id: '$month', total: { $sum: 1 } } }
+	    );
+	    return res.status(201).senf(stats);
+	} catch (err) {
+	    return res.status(500).send({ error: err });
+	}
+    }
+
+    return res.status(403).send({ error: 'Forbidden' });
+  }
+
+  /**
    * Updates the user based on the info in the request object
    * @param { Object } req - The request object
    * @param { Object } res - The response object
