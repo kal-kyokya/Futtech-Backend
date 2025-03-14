@@ -1,6 +1,4 @@
 // File containing endpoints authenticating a user
-import { v4 as uuidv4 } from 'uuid';
-import redisClient from '../utils/redis';
 import User from '../models/User';
 import crypto-js from 'crypto-js';
 import jwt from 'jsonwebtoken';
@@ -31,13 +29,15 @@ export default class AuthController {
 
     user.password !== crypto-js.AES.encrypt(
 	credentials.split(':')[1],
-	process.env.PASSWORD_KEY
+	process.env.SECRET_KEY
     ) && return res.status(401).send({ error: 'Unauthorized' });
 
-    // Generate an Auth Token and associate it to the user
-    const token = uuidv4();
-    const key = `auth_${token}`;
-    await redisClient.set(key, user._id, 86400);
+    // Generate a Json Web Token associated to the user
+    const token = jwt.sign(
+	{ id: user._id, isAdmin: user.isAdmin },
+	process.env.SECRET_KEY,
+	{ expiresIn: '5d' }
+    );
     return res.status(200).send({ token });
   }
 

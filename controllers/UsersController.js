@@ -41,7 +41,7 @@ export default class UsersController {
     // Hash 'password' using 'AES'
     const hashedPwd = crypto-js.AES.encrypt(
 	password, 
-	process.env.PASSWORD_KEY
+	process.env.SECRET_KEY
     ).toString();
 
     // Save 'new user' to MongoDB
