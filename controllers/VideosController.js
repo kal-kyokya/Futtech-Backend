@@ -28,17 +28,14 @@ export default class VideosController {
   }
 
   /**
-   * Retrieves the video through the request object's token
+   * Retrieves a video through the 'id' in request params
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
-  static async getMe(req, res) {
-    const { id } = req.user_info;
-
+  static async getVideo(req, res) {
     try {
-	const video = await Video.findById(id);
-	const { password, ...details } = video;
-	return res.status(201).send({ details });
+	const video = await Video.findById(req.params.id);
+	return res.status(201).send(video);
     } catch (err) {
 	return res.status(500).send({ error: err });
     }
