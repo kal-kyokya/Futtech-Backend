@@ -145,12 +145,12 @@ export default class UsersController {
 	}
 
 	try {
-	    const updateUser = await User.findByIdAndUpdate(
+	    const updatedUser = await User.findByIdAndUpdate(
 		id,
 		{ $set: req.body },
 		{ new: true }
 	    );
-	    return res.status(201).send(updateUser);
+	    return res.status(201).send(updatedUser);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}

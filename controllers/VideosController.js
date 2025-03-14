@@ -8,8 +8,8 @@ export default class VideosController {
    * @param { Object } res - The response object
    */
   static async createNewVideo(req, res) {
-    // Extract the video's information
-    const { isAdmin } = req.video_info;
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
 
     // Create the video
     const newVideo = new Video(req.body);
@@ -33,7 +33,7 @@ export default class VideosController {
    * @param { Object } res - The response object
    */
   static async getMe(req, res) {
-    const { id } = req.video_info;
+    const { id } = req.user_info;
 
     try {
 	const video = await Video.findById(id);
@@ -50,8 +50,8 @@ export default class VideosController {
    * @param { Object } res - The response object
    */
   static async getAll(req, res) {
-    // Extract the video's information
-    const { isAdmin } = req.video_info;
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
     const query = req.query.new;
 
     // Proceed with deletion of video
@@ -75,8 +75,8 @@ export default class VideosController {
    * @param { Object } res - The response object
    */
   static async getStats(req, res) {
-    // Extract the video's information
-    const { isAdmin } = req.video_info;
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
 
     // Proceed with report compilation
     if (isAdmin) {
@@ -100,27 +100,18 @@ export default class VideosController {
    * @param { Object } res - The response object
    */
   static async updateVideo(req, res) {
-    // Extract the video's information
-    const { id, isAdmin } = req.video_info;
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
 
-    // Proceed with updation of video details
-    if (id === req.params.id || isAdmin) {
-	// Ensure password gets changed if it was the target
-	if (req.body.password) {
-	    // Hash 'password' using 'AES'
-	    const req.body.password = crypto-js.AES.encrypt(
-		req.body.password, 
-		process.env.SECRET_KEY
-	    ).toString();
-	}
-
+    // Proceed with updation of the video
+    if (isAdmin) {
 	try {
-	    const updateVideo = await Video.findByIdAndUpdate(
-		id,
+	    const updatedVideo = await Video.findByIdAndUpdate(
+		req.params.id,
 		{ $set: req.body },
 		{ new: true }
 	    );
-	    return res.status(201).send(updateVideo);
+	    return res.status(201).send(updatedVideo);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}
@@ -130,18 +121,18 @@ export default class VideosController {
   }
 
   /**
-   * Deletes a video, by Video himself or Admin
+   * Deletes a video
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
   static async deleteVideo(req, res) {
-    // Extract the video's information
-    const { id, isAdmin } = req.video_info;
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
 
     // Proceed with deletion of video
-    if (id === req.params.id || isAdmin) {
+    if (isAdmin) {
 	try {
-	    await Video.findByIdAndDelete(id);
+	    await Video.findByIdAndDelete(req.params.id);
 	    return res.status(204);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
