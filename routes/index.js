@@ -42,8 +42,8 @@ export default function routing(app) {
 
   // VideosController
   videoRouter.post('/', VideosController.createNewUser);
-    videoRouter.get('/:id', AuthMiddleware.loginRequired, VideosController.getVideo);
-  videoRouter.get('/all', AuthMiddleware.loginRequired, VideosController.getAll);
+  videoRouter.get('/:id', AuthMiddleware.loginRequired, VideosController.getVideo);
+  videoRouter.get('/random', AuthMiddleware.loginRequired, VideosController.getRandom);
   videoRouter.get('/stats', AuthMiddleware.loginRequired, VideosController.getStats);
   videoRouter.put('/:id', AuthMiddleware.loginRequired, VideosController.updateUser);
   videoRouter.delete('/:id', AuthMiddleware.loginRequired, VideosController.deleteUser);

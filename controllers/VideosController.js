@@ -42,22 +42,29 @@ export default class VideosController {
   }
 
   /**
-   * Retrieve all videos in the database
+   * Retrieve a random video from the database
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
-  static async getAll(req, res) {
+  static async getRandom(req, res) {
     // Extract the user's information
-    const { isAdmin } = req.user_info;
-    const query = req.query.new;
+    const type = req.query.type;
+    let video;
 
-    // Proceed with deletion of video
-    if (isAdmin) {
-	try {
-	    const videos = query
-		  ? await Video.find().sort({ _id: -1 }).limit(10)
-		  : await Video.find();
-	    return res.status(201).send(videos);
+    // Proceed with random retrieval of a video
+      try {
+	  if (type === 'series') {
+	      video = await Video.aggregate([
+		  { $match: { isSeries: true } },
+		  { $sample: { size: 1 } },
+	      ]);
+	  } else {
+	      video = await Video.aggregate([
+		  { $match: { isSeries: false } },
+		  { $sample: { size: 1 } },
+	      ]);
+	  }
+	  res.status(201).send(video);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}
@@ -67,22 +74,19 @@ export default class VideosController {
   }
 
   /**
-   * Compiles a report on videos in the database
+   * Get all videos in the database
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
-  static async getStats(req, res) {
+  static async deleteVideo(req, res) {
     // Extract the user's information
     const { isAdmin } = req.user_info;
 
-    // Proceed with report compilation
+    // Proceed with deletion of video
     if (isAdmin) {
 	try {
-	    const stats = await Video.aggregate([
-		{ $project: { month: { $month: '$createAt'} } },
-		{ $group: { _id: '$month', total: { $sum: 1 } } }
-	    ]);
-	    return res.status(201).send(stats);
+	    const movies = await Video.find();
+	    return res.status(201).send(movies.reverse);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}
