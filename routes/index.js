@@ -24,7 +24,9 @@ export default function routing(app) {
   // UsersController
   router.post('/users/signUp', UsersController.createNewUser);
   router.get('/users/me', AuthMiddleware.loginRequired, UsersController.getMe);
+  router.get('/users/all', AuthMiddleware.loginRequired, UsersController.getAll);
   router.put('/users/:id', AuthMiddleware.loginRequired, UsersController.updateUser);
+  router.delete('/users/:id', AuthMiddleware.loginRequired, UsersController.deleteUser);
 
   // AuthController
   router.get('/signIn', AuthController.signingIn);

@@ -54,17 +54,49 @@ export default class UsersController {
     const { password, ...details } = newUser._doc;
 
     // Return all user data except the password
-    res.status(200).send(details);
+    res.status(201).send(details);
   }
 
   /**
-   * Retrieves the user based on the token in the request object
+   * Retrieves the user through the request object's token
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
   static async getMe(req, res) {
-    const { user } = req;
-    return res.send({ id: user._id.toString(), email: user.email });
+    const { id } = req.user_info;
+
+    try {
+	const user = await User.findById(id);
+	const { password, ...details } = user;
+	return res.status(201).send({ details });
+    } catch (err) {
+	return res.status(500).send({ error: err });
+    }
+  }
+
+  /**
+   * Retrieve all users in the database
+   * @param { Object } req - The request object
+   * @param { Object } res - The response object
+   */
+  static async getAll(req, res) {
+    // Extract the user's information
+    const { isAdmin } = req.user_info;
+    const query = req.query.new;
+
+    // Proceed with deletion of user
+    if (isAdmin) {
+	try {
+	    const users = query
+		  ? await User.find().sort({ _id: -1 }).limit(10)
+		  : await User.find();
+	    return res.status(201).senf(users);
+	} catch (err) {
+	    return res.status(500).send({ error: err });
+	}
+    }
+
+    return res.status(403).send({ error: 'Forbidden' });
   }
 
   /**
@@ -93,12 +125,34 @@ export default class UsersController {
 		{ $set: req.body },
 		{ new: true }
 	    );
-	    return res.status(200).send(updateUser);
+	    return res.status(201).send(updateUser);
 	} catch (err) {
-	    return res.status(401).send({ error: err });
+	    return res.status(500).send({ error: err });
 	}
     }
 
-    return res.status(401).send({ error: 'Unauthorized' });
+    return res.status(403).send({ error: 'Forbidden' });
+  }
+
+  /**
+   * Deletes a user, by User himself or Admin
+   * @param { Object } req - The request object
+   * @param { Object } res - The response object
+   */
+  static async deleteUser(req, res) {
+    // Extract the user's information
+    const { id, isAdmin } = req.user_info;
+
+    // Proceed with deletion of user
+    if (id === req.params.id || isAdmin) {
+	try {
+	    await User.findByIdAndDelete(id);
+	    return res.status(204);
+	} catch (err) {
+	    return res.status(500).send({ error: err });
+	}
+    }
+
+    return res.status(403).send({ error: 'Forbidden' });
   }
 }
