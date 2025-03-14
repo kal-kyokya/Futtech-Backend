@@ -66,4 +66,39 @@ export default class UsersController {
     const { user } = req;
     return res.send({ id: user._id.toString(), email: user.email });
   }
+
+  /**
+   * Updates the user based on the info in the request object
+   * @param { Object } req - The request object
+   * @param { Object } res - The response object
+   */
+  static async updateUser(req, res) {
+    // Extract the user's information
+    const { id, isAdmin } = req.user_info;
+
+    // Proceed with updation of user details
+    if (id === req.params.id || isAdmin) {
+	// Ensure password gets changed if it was the target
+	if (req.body.password) {
+	    // Hash 'password' using 'AES'
+	    const req.body.password = crypto-js.AES.encrypt(
+		req.body.password, 
+		process.env.SECRET_KEY
+	    ).toString();
+	}
+
+	try {
+	    const updateUser = await User.findByIdAndUpdate(
+		id,
+		{ $set: req.body },
+		{ new: true }
+	    );
+	    return res.status(200).send(updateUser);
+	} catch (err) {
+	    return res.status(401).send({ error: err });
+	}
+    }
+
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
 }

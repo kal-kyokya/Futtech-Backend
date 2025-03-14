@@ -1,7 +1,5 @@
 // This file contains a class protecting routes that require login or logout
-import { ObjectId } from 'mongodb';
-import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
+import jwt from 'jsonwebtoken';
 
 export default class AuthMiddleWare {
   /**
@@ -11,26 +9,27 @@ export default class AuthMiddleWare {
    * @param { function } next - Function relaying control
    */
   static async loginRequired(req, res, next) {
-    // Extract the Authentication token and make a key
-    const token = req.headers['x-token'];
-    const key = `auth_${token}`;
-
-    // Validate login status
-    const userId = await redisClient.get(key);
-    if (!userId) {
-      return res.status(401).send({ error: 'Unauthorized' });
+    // Extract the Authentication token
+    const token = req.headers['auth-token'];
+    if (!token) {
+	return res.status(401).send({ error: 'Unauthorized' });
     }
 
-    // Query user from DB and append it to the request object
-    const user = await (await dbClient.client.db()).collection('users').findOne({ _id: new ObjectId(userId) });
-    if (!user) {
-      return res.status(401).send({ error: 'Unauthorized' });
-    }
-    req.user = user;
+    // Validate the token sent
+    const userId = await jwt.verify(
+	token,
+	process.env.SECRET_KEY,
+	(err, user_info) => {
+	    (if err) {
+		return res.status(401).send({ error: 'Unauthorized' });
+	    } else {
+		req.user_info = user_info;
+		return next();
+	    }
+	});
 
     // Append the key to the request object and relay control
     req.key = key;
-    return next();
   }
 
   /**
