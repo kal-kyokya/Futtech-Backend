@@ -1,7 +1,9 @@
 // File containing endpoints authenticating a user
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '../utils/redis';
-import dbClient from '../utils/db';
+import User from '../models/User';
+import crypto-js from 'crypto-js';
+import jwt from 'jsonwebtoken';
 
 export default class AuthController {
   /**
@@ -21,11 +23,16 @@ export default class AuthController {
     // const credentials = header.split(' ')[1];
     const email = credentials.split(':')[0];
 
-    // Ensure the DB contains a user with input email
-    const user = await (await dbClient.client.db()).collection('users').findOne({ email });
+    // Ensure the DB contains a user with the input email
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).send({ error: 'Unauthorized' });
     }
+
+    user.password !== crypto-js.AES.encrypt(
+	credentials.split(':')[1],
+	process.env.PASSWORD_KEY
+    ) && return res.status(401).send({ error: 'Unauthorized' });
 
     // Generate an Auth Token and associate it to the user
     const token = uuidv4();

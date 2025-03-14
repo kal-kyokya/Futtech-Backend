@@ -51,8 +51,10 @@ export default class UsersController {
 	password: hashedPwd
     });
 
-    // Return an Object containing the user's 'email' and the auto-assigned 'id'
-    res.status(200).send({ email, username, id: newUser._id || 0 });
+    const { password, ...details } = newUser._doc;
+
+    // Return all user data except the password
+    res.status(200).send(details);
   }
 
   /**
