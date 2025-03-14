@@ -17,6 +17,7 @@
     "bull": "^3.16.0",
     "chai-http": "^4.3.0",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "image-thumbnail": "^1.0.10",
