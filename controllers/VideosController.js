@@ -47,20 +47,20 @@ export default class VideosController {
    * @param { Object } res - The response object
    */
   static async getRandomVideo(req, res) {
-    // Extract the video type
-    const type = req.query.type;
+    // Extract the video category
+    const category = req.query.category;
     let video;
 
     // Proceed with random retrieval of a video
       try {
-	  if (type === 'series') {
+	  if (category === 'drone') {
 	      video = await Video.aggregate([
-		  { $match: { isSeries: true } },
+		  { $match: { isDrone: true } },
 		  { $sample: { size: 1 } },
 	      ]);
 	  } else {
 	      video = await Video.aggregate([
-		  { $match: { isSeries: false } },
+		  { $match: { isDrone: false } },
 		  { $sample: { size: 1 } },
 	      ]);
 	  }

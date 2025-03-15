@@ -10,7 +10,7 @@ const VideoSchema = new mongoose.Schema(
 	thumbnailSmall: { type: String },
 	date: { type: String },
 	category: { type: String },
-	isTraining: { type: Boolean, default: false },
+	isDrone: { type: Boolean, default: false },
     },
     { timestamps: true}
 );
