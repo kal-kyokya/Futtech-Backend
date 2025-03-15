@@ -16,12 +16,12 @@ export default class VideosController {
 
     // Proceed with upload of the video
     if (isAdmin) {
-	try {
-	    const savedVideo = await newVideo.save();
-	    return res.status(201).send(savedVideo);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const savedVideo = await newVideo.save();
+        return res.status(201).send(savedVideo);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -34,10 +34,10 @@ export default class VideosController {
    */
   static async getVideo(req, res) {
     try {
-	const video = await Video.findById(req.params.id);
-	return res.status(201).send(video);
+      const video = await Video.findById(req.params.id);
+      return res.status(201).send(video);
     } catch (err) {
-	return res.status(500).send({ error: err });
+      return res.status(500).send({ error: err });
     }
   }
 
@@ -48,26 +48,25 @@ export default class VideosController {
    */
   static async getRandomVideo(req, res) {
     // Extract the video category
-    const category = req.query.category;
+    const { category } = req.query;
     let video;
 
     // Proceed with random retrieval of a video
-      try {
-	  if (category === 'drone') {
-	      video = await Video.aggregate([
-		  { $match: { isDrone: true } },
-		  { $sample: { size: 1 } },
-	      ]);
-	  } else {
-	      video = await Video.aggregate([
-		  { $match: { isDrone: false } },
-		  { $sample: { size: 1 } },
-	      ]);
-	  }
-	  res.status(201).send(video);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+    try {
+      if (category === 'drone') {
+        video = await Video.aggregate([
+          { $match: { isDrone: true } },
+          { $sample: { size: 1 } },
+        ]);
+      } else {
+        video = await Video.aggregate([
+          { $match: { isDrone: false } },
+          { $sample: { size: 1 } },
+        ]);
+      }
+      res.status(201).send(video);
+    } catch (err) {
+      return res.status(500).send({ error: err });
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -84,12 +83,12 @@ export default class VideosController {
 
     // Proceed with deletion of video
     if (isAdmin) {
-	try {
-	    const videos = await Video.find();
-	    return res.status(201).send(videos.reverse());
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const videos = await Video.find();
+        return res.status(201).send(videos.reverse());
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -106,15 +105,15 @@ export default class VideosController {
 
     // Proceed with report compilation
     if (isAdmin) {
-	try {
-	    const stats = await Video.aggregate([
-		{ $project: { month: { $month: '$createAt'} } },
-		{ $group: { _id: '$month', total: { $sum: 1 } } }
-	    ]);
-	    return res.status(201).send(stats);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const stats = await Video.aggregate([
+          { $project: { month: { $month: '$createAt' } } },
+          { $group: { _id: '$month', total: { $sum: 1 } } },
+        ]);
+        return res.status(201).send(stats);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -131,16 +130,16 @@ export default class VideosController {
 
     // Proceed with updation of the video
     if (isAdmin) {
-	try {
-	    const updatedVideo = await Video.findByIdAndUpdate(
-		req.params.id,
-		{ $set: req.body },
-		{ new: true }
-	    );
-	    return res.status(201).send(updatedVideo);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const updatedVideo = await Video.findByIdAndUpdate(
+          req.params.id,
+          { $set: req.body },
+          { new: true },
+        );
+        return res.status(201).send(updatedVideo);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -157,12 +156,12 @@ export default class VideosController {
 
     // Proceed with deletion of video
     if (isAdmin) {
-	try {
-	    await Video.findByIdAndDelete(req.params.id);
-	    return res.status(204);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        await Video.findByIdAndDelete(req.params.id);
+        return res.status(204);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });

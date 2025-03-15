@@ -1,7 +1,7 @@
 // File containing endpoints authenticating a user
-import User from '../models/User';
-import crypto-js from 'crypto-js';
+import cryptoJS from 'crypto-js';
 import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
 export default class AuthController {
   /**
@@ -27,28 +27,16 @@ export default class AuthController {
       return res.status(401).send({ error: 'Unauthorized' });
     }
 
-    user.password !== crypto-js.AES.encrypt(
-	credentials.split(':')[1],
-	process.env.SECRET_KEY
-    ) && return res.status(401).send({ error: 'Unauthorized' });
+    if (user.password !== cryptoJS.AES.encrypt(credentials.split(':')[1], process.env.SECRET_KEY)) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
 
     // Generate a Json Web Token associated to the user
     const token = jwt.sign(
-	{ id: user._id, isAdmin: user.isAdmin },
-	process.env.SECRET_KEY,
-	{ expiresIn: '5d' }
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.SECRET_KEY,
+      { expiresIn: '5d' },
     );
     return res.status(200).send({ token });
-  }
-
-  /**
-   * Sign out a user based on an Auth Token
-   * @param { Object } req - The request object
-   * @param { Object } res - The response object
-   */
-  static async signingOut(req, res) {
-    const { key } = req.key;
-    await redisClient.del(key);
-    return res.status(204).send({});
   }
 }

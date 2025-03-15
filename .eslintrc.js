@@ -23,6 +23,8 @@ module.exports = {
       'no-underscore-dangle': 'off',
       'no-console': 'off',
       'no-shadow': 'off',
+      'import/no-named-as-default': 0,
+      'import/no-named-as-default-member': 0,
       'no-restricted-syntax': [
         'error',
         'LabeledStatement',

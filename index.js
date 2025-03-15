@@ -1,10 +1,9 @@
 // Create an express server
 import express from 'express';
-import routing from './routes/index.js';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-
+import routing from './routes/index';
 
 // Store an Express instance representing the app
 const app = express();
@@ -31,10 +30,10 @@ app.listen(PORT, () => {
 });
 
 mongoose
-    .connect( URL, {
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
-	UseCreateIndex: true
-    })
-    .then(() => console.log('DB Connection - Success'))
-    .catch((err) => console.log(err));
+  .connect(URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    UseCreateIndex: true,
+  })
+  .then(() => console.log('DB Connection - Success'))
+  .catch((err) => console.log(err));

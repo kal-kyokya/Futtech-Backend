@@ -12,24 +12,23 @@ export default class AuthMiddleWare {
     // Extract the Authentication token
     const token = req.headers['auth-token'];
     if (!token) {
-	return res.status(401).send({ error: 'Unauthorized' });
+      return res.status(401).send({ error: 'Unauthorized' });
     }
 
     // Validate the token sent
-    const userId = await jwt.verify(
-	token,
-	process.env.SECRET_KEY,
-	(err, user_info) => {
-	    (if err) {
-		return res.status(401).send({ error: 'Unauthorized' });
-	    } else {
-		req.user_info = user_info;
-		return next();
-	    }
-	});
+    await jwt.verify(
+      token,
+      process.env.SECRET_KEY,
+      (err, userInfo) => {
+        if (err) {
+          return res.status(401).send({ error: 'Unauthorized' });
+        }
+        req.userInfo = userInfo;
+        return next();
+      },
+    );
 
-    // Append the key to the request object and relay control
-    req.key = key;
+    return res.status(401).send({ error: 'Unauthorized' });
   }
 
   /**

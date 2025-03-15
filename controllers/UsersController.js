@@ -1,5 +1,5 @@
 // This is a Script containing a class whose methods handle API routes
-import crypto-js from 'crypto-js';
+import cryptoJS from 'crypto-js';
 import User from '../models/User';
 
 export default class UsersController {
@@ -24,8 +24,8 @@ export default class UsersController {
     }
 
     // Validate the 'password' sent
-    const password = req.body ? req.body.password : null;
-    if (!password) {
+    const reqPassword = req.body ? req.body.password : null;
+    if (!reqPassword) {
       res.status(400).send({ error: 'Missing password' });
       return;
     }
@@ -38,17 +38,17 @@ export default class UsersController {
       return;
     }
 
-    // Hash 'password' using 'AES'
-    const hashedPwd = crypto-js.AES.encrypt(
-	password, 
-	process.env.SECRET_KEY
+    // Hash 'reqPassword' using 'AES'
+    const hashedPwd = cryptoJS.AES.encrypt(
+      reqPassword,
+      process.env.SECRET_KEY,
     ).toString();
 
     // Save 'new user' to MongoDB
     const newUser = new User({
-	username,
-	email,
-	password: hashedPwd
+      username,
+      email,
+      password: hashedPwd,
     });
 
     const { password, ...details } = newUser._doc;
@@ -66,11 +66,11 @@ export default class UsersController {
     const { id } = req.user_info;
 
     try {
-	const user = await User.findById(id);
-	const { password, ...details } = user;
-	return res.status(201).send({ details });
+      const user = await User.findById(id);
+      const { password, ...details } = user;
+      return res.status(201).send({ details });
     } catch (err) {
-	return res.status(500).send({ error: err });
+      return res.status(500).send({ error: err });
     }
   }
 
@@ -86,14 +86,14 @@ export default class UsersController {
 
     // Proceed with deletion of user
     if (isAdmin) {
-	try {
-	    const users = query
-		  ? await User.find().sort({ _id: -1 }).limit(10)
-		  : await User.find();
-	    return res.status(201).send(users);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const users = query
+          ? await User.find().sort({ _id: -1 }).limit(10)
+          : await User.find();
+        return res.status(201).send(users);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -110,15 +110,15 @@ export default class UsersController {
 
     // Proceed with report compilation
     if (isAdmin) {
-	try {
-	    const stats = await User.aggregate([
-		{ $project: { month: { $month: '$createAt'} } },
-		{ $group: { _id: '$month', total: { $sum: 1 } } }
-	    ]);
-	    return res.status(201).send(stats);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const stats = await User.aggregate([
+          { $project: { month: { $month: '$createAt' } } },
+          { $group: { _id: '$month', total: { $sum: 1 } } },
+        ]);
+        return res.status(201).send(stats);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -135,25 +135,25 @@ export default class UsersController {
 
     // Proceed with updation of user details
     if (id === req.params.id || isAdmin) {
-	// Ensure password gets changed if it was the target
-	if (req.body.password) {
-	    // Hash 'password' using 'AES'
-	    const req.body.password = crypto-js.AES.encrypt(
-		req.body.password, 
-		process.env.SECRET_KEY
-	    ).toString();
-	}
+      // Ensure password gets changed if it was the target
+      if (req.body.password) {
+        // Hash 'password' using 'AES'
+        req.body.password = cryptoJS.AES.encrypt(
+          req.body.password,
+          process.env.SECRET_KEY,
+        ).toString();
+      }
 
-	try {
-	    const updatedUser = await User.findByIdAndUpdate(
-		id,
-		{ $set: req.body },
-		{ new: true }
-	    );
-	    return res.status(201).send(updatedUser);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const updatedUser = await User.findByIdAndUpdate(
+          id,
+          { $set: req.body },
+          { new: true },
+        );
+        return res.status(201).send(updatedUser);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -170,12 +170,12 @@ export default class UsersController {
 
     // Proceed with deletion of user
     if (id === req.params.id || isAdmin) {
-	try {
-	    await User.findByIdAndDelete(id);
-	    return res.status(204);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        await User.findByIdAndDelete(id);
+        return res.status(204);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });

@@ -16,12 +16,12 @@ export default class ListsController {
 
     // Proceed with create of the list
     if (isAdmin) {
-	try {
-	    const savedList = await newList.save();
-	    return res.status(201).send(savedList);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const savedList = await newList.save();
+        return res.status(201).send(savedList);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -34,31 +34,30 @@ export default class ListsController {
    */
   static async getList(req, res) {
     // Extract the list category
-    const category = req.query.category;
-    const subCategory = req.query.subCategory;
+    const { category } = req.query;
+    const { subCategory } = req.query;
     let list = [];
 
     // Proceed with retrieval of a list
-      try {
-	  if (category) {
-	      if (subCategory) {
-		  list = await List.aggregate([
-		      { $match: { category, subCategory } },
-		      { $sample: { size: 3 } },
-		  ]);
-	      } else {
-		  list = await List.aggregate([
-		      { $match: { category } },
-		      { $sample: { size: 3 } },
-		  ]);
-	      }
-	  } else {
-	      list = await List.aggregate([{ $sample: { size: 3 } }]);
-	  }
-	  res.status(201).send(list);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+    try {
+      if (category) {
+        if (subCategory) {
+          list = await List.aggregate([
+            { $match: { category, subCategory } },
+            { $sample: { size: 3 } },
+          ]);
+        } else {
+          list = await List.aggregate([
+            { $match: { category } },
+            { $sample: { size: 3 } },
+          ]);
+        }
+      } else {
+        list = await List.aggregate([{ $sample: { size: 3 } }]);
+      }
+      res.status(201).send(list);
+    } catch (err) {
+      return res.status(500).send({ error: err });
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -75,15 +74,15 @@ export default class ListsController {
 
     // Proceed with report compilation
     if (isAdmin) {
-	try {
-	    const stats = await List.aggregate([
-		{ $project: { month: { $month: '$createAt'} } },
-		{ $group: { _id: '$month', total: { $sum: 1 } } }
-	    ]);
-	    return res.status(201).send(stats);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        const stats = await List.aggregate([
+          { $project: { month: { $month: '$createAt' } } },
+          { $group: { _id: '$month', total: { $sum: 1 } } },
+        ]);
+        return res.status(201).send(stats);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
@@ -100,12 +99,12 @@ export default class ListsController {
 
     // Proceed with deletion of list
     if (isAdmin) {
-	try {
-	    await List.findByIdAndDelete(req.params.id);
-	    return res.status(204);
-	} catch (err) {
-	    return res.status(500).send({ error: err });
-	}
+      try {
+        await List.findByIdAndDelete(req.params.id);
+        return res.status(204);
+      } catch (err) {
+        return res.status(500).send({ error: err });
+      }
     }
 
     return res.status(403).send({ error: 'Forbidden' });
