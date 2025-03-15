@@ -3,7 +3,7 @@ import Video from '../models/Video';
 
 export default class VideosController {
   /**
-   * Uploads a new video to the database
+   * Uploads a video to the database
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
@@ -28,7 +28,7 @@ export default class VideosController {
   }
 
   /**
-   * Retrieves a video through the 'id' in request params
+   * Retrieves a video thanks to the request params 'id'
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
@@ -42,12 +42,12 @@ export default class VideosController {
   }
 
   /**
-   * Retrieve a random video from the database
+   * Retrieves a random video from the database
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
-  static async getRandom(req, res) {
-    // Extract the user's information
+  static async getRandomVideo(req, res) {
+    // Extract the video type
     const type = req.query.type;
     let video;
 
@@ -74,19 +74,44 @@ export default class VideosController {
   }
 
   /**
-   * Get all videos in the database
+   * Retrieves all the videos in the database
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
-  static async deleteVideo(req, res) {
+  static async getAll(req, res) {
     // Extract the user's information
     const { isAdmin } = req.user_info;
 
     // Proceed with deletion of video
     if (isAdmin) {
 	try {
-	    const movies = await Video.find();
-	    return res.status(201).send(movies.reverse);
+	    const videos = await Video.find();
+	    return res.status(201).send(videos.reverse());
+	} catch (err) {
+	    return res.status(500).send({ error: err });
+	}
+    }
+
+    return res.status(403).send({ error: 'Forbidden' });
+  }
+
+  /**
+   * Compiles a report for videos in the database
+   * @param { Object } req - The request object
+   * @param { Object } res - The response object
+   */
+  static async getStats(req, res) {
+    // Extract the users's information
+    const { isAdmin } = req.video_info;
+
+    // Proceed with report compilation
+    if (isAdmin) {
+	try {
+	    const stats = await Video.aggregate([
+		{ $project: { month: { $month: '$createAt'} } },
+		{ $group: { _id: '$month', total: { $sum: 1 } } }
+	    ]);
+	    return res.status(201).send(stats);
 	} catch (err) {
 	    return res.status(500).send({ error: err });
 	}
@@ -122,7 +147,7 @@ export default class VideosController {
   }
 
   /**
-   * Deletes a video
+   * Deletes a video from the database
    * @param { Object } req - The request object
    * @param { Object } res - The response object
    */
